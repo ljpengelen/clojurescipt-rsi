@@ -5,3 +5,11 @@ body {
   color: #333;
   line-height: 1.5em;
 }
+
+svg {
+  user-select: none;
+}
+
+p {
+  width: 30rem;
+}

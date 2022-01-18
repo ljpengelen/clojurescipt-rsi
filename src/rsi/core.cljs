@@ -62,26 +62,32 @@
                           (score!)
                           (game-over!)))}])
 
-(defn max-r [circles]
+(defn second-largest [circles]
   (->> circles
        (map :r)
-       (apply max)))
+       (sort >)
+       rest
+       first))
 
-(defn is-max-r? [r circles]
-  (= r (max-r circles)))
+(defn is-second-largest? [r circles]
+  (= r (second-largest circles)))
 
 (comment
-  (max-r [{:r 10} {:r 100}]))
+  (second-largest [{:r 10} {:r 50} {:r 100} {:r 99}]))
 
 (defn app []
   [:div.app
+   [:p
+    "Click the second largest circle to score a point. "
+    "If you click the wrong circle, the round is over. "
+    "If you don't click a circle on time, the round is over too."]
    [score-view "Score" score]
    [score-view "High score" highscore]
    [:svg {:height "500"
           :width "500"
           :on-click #(game-over!)}
     (for [c @circles]
-      [circle c (is-max-r? (:r c) @circles)])]])
+      [circle c (is-second-largest? (:r c) @circles)])]])
 
 (defn mount-root []
   (d/render [app] (.getElementById js/document "app")))
