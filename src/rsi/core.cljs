@@ -2,91 +2,79 @@
   (:require [reagent.core :as r]
             [reagent.dom :as d]))
 
-(defonce score (r/atom 0))
-(defonce highscore (r/atom 0))
+(defonce circles (r/atom {}))
+(defonce mode (r/atom :recolor))
 
-(defonce circles (r/atom []))
-
-(defonce next-colors (r/atom (cycle ["cyan" "magenta" "yellow" "black"])))
-(defonce color (r/atom "black"))
-
-(defn next-color! []
-  (reset! color (first @next-colors))
-  (swap! next-colors next))
-
-(defn random-circle []
-  {:x (rand-int 500) :y (rand-int 500) :r (rand-int 100)})
-
-(defn new-circles! []
-  (reset! circles (repeatedly 5 random-circle)))
+(defn circle
+  ([x y c] (circle x y c 10))
+  ([x y c r] {:x x :y y :c c :r r}))
 
 (comment
-  (reset! score 21)
-  (swap! score inc)
-  (new-circles!))
+  (reset! circles {}))
 
-(defn score-view [label score]
-  [:div (str label ": " @score)])
+(defn grow [{:keys [x y c r]}]
+  (circle x y c (* 2 r)))
 
-(defonce timeoutId (r/atom nil))
-(defn set-timeout! [f]
-  (reset! timeoutId (js/setTimeout f 1500)))
-(defn clear-timeout! []
-  (js/clearTimeout @timeoutId))
+(defn shrink [circle]
+  (update circle :r #(/ % 2)))
 
-(defn game-over! []
-  (clear-timeout!)
-  (next-color!)
-  (reset! score 0)
-  (new-circles!)
-  (set-timeout! game-over!))
+(defn random-color []
+  (str "#" (.toString (rand-int 16777215) 16)))
 
-(defn score! []
-  (clear-timeout!)
-  (swap! score inc)
-  (swap! highscore max @score)
-  (new-circles!)
-  (set-timeout! game-over!))
+(defn recolor [c]
+  (assoc c :c (random-color)))
+
+(defn recolor-all [cs]
+  (reduce-kv (fn [m k v] (assoc m k (recolor v))) {} cs))
 
 (comment
-  (next-color!))
+  (random-color)
+  (circle 123 456 "#ff00ff")
+  (grow (circle 123 456 "#ffff00"))
+  (shrink (circle 123 456 "#fff"))
+  (recolor (circle 123 456 "#fff"))
+  (recolor-all {"abc" (circle 123 456 "#fff")
+                "def" (circle 123 456 "#fff")}))
 
-(defn circle [{:keys [x y r]} max?]
+(defn svg-circle [{:keys [x y r c]} on-click]
   [:circle {:cx x
             :cy y
             :r r
-            :fill @color
-            :on-click (fn [e]
-                        (.stopPropagation e)
-                        (if max?
-                          (score!)
-                          (game-over!)))}])
+            :fill c
+            :on-click on-click}])
 
-(defn max-r [circles]
-  (->> circles
-       (map :r)
-       (apply max)))
+(defn add-circle! [x y]
+  (let [color (random-color)
+        new-circle (circle x y color)]
+    (swap! circles assoc color new-circle)))
 
-(defn is-max-r? [r circles]
-  (= r (max-r circles)))
+(def modifications {:recolor recolor
+                    :grow grow
+                    :shrink shrink})
 
-(comment
-  (max-r [{:r 10} {:r 100}]))
+(defn modify-circle! [key]
+  (let [f (get modifications @mode)]
+    (swap! circles update key f)))
+
+(defn coords [e]
+  (let [rect (.. e -target getBoundingClientRect)
+        x (- (.-clientX e) (.-left rect))
+        y (- (.-clientY e) (.-top rect))]
+    [x y]))
 
 (defn app []
-  [:div.app
-   [score-view "Score" score]
-   [score-view "High score" highscore]
+  [:div
    [:svg {:height "500"
           :width "500"
-          :on-click #(game-over!)}
-    (for [c @circles]
-      [circle c (is-max-r? (:r c) @circles)])]])
+          :on-click (fn [e] (let [[x y] (coords e)] (add-circle! x y)))}
+    (for [[key circle] @circles]
+      ^{:key key} [svg-circle circle (fn [e] (.stopPropagation e) (modify-circle! key))])]
+   [:button {:on-click #(reset! mode :recolor)} "Change color"]
+   [:button {:on-click #(reset! mode :grow)} "Grow"]
+   [:button {:on-click #(reset! mode :shrink)} "Shrink"]])
 
 (defn mount-root []
   (d/render [app] (.getElementById js/document "app")))
 
 (defn ^:export init! []
-  (mount-root)
-  (new-circles!)
-  (set-timeout! game-over!))
+  (mount-root))
