@@ -48,12 +48,12 @@
         new-circle (circle x y color)]
     (swap! circles assoc color new-circle)))
 
-(def modifications {:recolor recolor
-                    :grow grow
-                    :shrink shrink})
+(def modification-functions {:recolor recolor
+                            :grow grow
+                            :shrink shrink})
 
 (defn modify-circle! [key]
-  (let [f (get modifications @mode)]
+  (let [f (get modification-functions @mode)]
     (swap! circles update key f)))
 
 (defn coords [e]
