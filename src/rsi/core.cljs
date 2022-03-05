@@ -204,3 +204,19 @@
   (swap! number inc) ;; Triggers a rendering each time
   (reset! number 0) ;; Triggers one rendering
   (reset! number 20)) ;; Also triggers one rendering
+
+(comment
+  ;; Functional React components using JSX look pretty good too.
+  "
+  const someFunctionalReactComponent = (v1, v2) =>
+  <div>
+    <p>{v1}</p>
+    <p>{v1 + v2}</p>
+  </div>;
+  "
+  ;; Under the hood, however, JSX expressions compile to
+  ;; function calls, which are not as straightforward to test
+  ;; as simple vectors.
+
+  ;; Compile the above using the Babel REPL: https://babeljs.io/repl/
+  )
