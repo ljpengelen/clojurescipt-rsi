@@ -135,10 +135,11 @@
           :on-click (fn [e] (let [[x y] (coords e)] (add-circle! x y)))}
     (for [[key circle] @circles]
       ^{:key key} [svg-circle circle (fn [e] (.stopPropagation e) (modify-circle! key))])]
-   [change-mode-button @mode :recolor "Change color"]
-   [change-mode-button @mode :grow "Grow"]
-   [change-mode-button @mode :shrink "Shrink"]
-   [:button {:on-click #(swap! circles recolor-all)} "Change all colors"]])
+   [:div
+    [change-mode-button @mode :recolor "Change color"]
+    [change-mode-button @mode :grow "Grow"]
+    [change-mode-button @mode :shrink "Shrink"]
+    [:button {:on-click #(swap! circles recolor-all)} "Change all colors"]]])
 
 ;; Attach the main Reagent component to a DOM element
 
