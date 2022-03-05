@@ -73,16 +73,23 @@
             :on-click on-click}])
 
 (comment
-  (svg-circle (circle 12 34 "#00f") #()))
+  (svg-circle (circle 12 34 "#00f") identity)
+  
+  ;; Function are only equal to themselves
+  
+  (= identity identity)
+  (= svg-circle svg-circle)
+  (= identity (fn [x] x))
+  (= (fn [x] x) (fn [x] x)))
 
-(defn change-mode-button [current-mode new-mode label]
+(defn change-mode-button [current-mode new-mode label on-click]
   (let [style (when (= current-mode new-mode) {:font-weight "bold"})]
-    [:button {:on-click #(reset! mode new-mode)
+    [:button {:on-click on-click
               :style style} label]))
 
 (comment
-  (change-mode-button :recolor :recolor "Change color")
-  (change-mode-button :recolor :shrink "Shrink"))
+  (change-mode-button :recolor :recolor "Change color" identity)
+  (change-mode-button :recolor :shrink "Shrink" identity))
 
 ;; Functions to manipulate the global state
 
@@ -96,6 +103,14 @@
   (add-circle! (rand-int 500) (rand-int 500))
   (swap! circles recolor-all))
 
+(defn set-mode! [new-mode]
+  (reset! mode new-mode))
+
+(comment
+  (set-mode! :recolor)
+  (set-mode! :grow)
+  (set-mode! :shrink))
+
 (def modification-functions {:recolor recolor
                              :grow grow
                              :shrink shrink})
@@ -107,13 +122,13 @@
 (comment
   (add-circle! (rand-int 500) (rand-int 500) "#00f")
   (do
-    (reset! mode :recolor)
+    (set-mode! :recolor)
     (modify-circle! "#00f"))
   (do
-    (reset! mode :grow)
+    (set-mode! :grow)
     (modify-circle! "#00f"))
   (do
-    (reset! mode :shrink)
+    (set-mode! :shrink)
     (modify-circle! "#00f")))
 
 ;; Utility function
@@ -136,9 +151,9 @@
     (for [[key circle] @circles]
       ^{:key key} [svg-circle circle (fn [e] (.stopPropagation e) (modify-circle! key))])]
    [:div
-    [change-mode-button @mode :recolor "Change color"]
-    [change-mode-button @mode :grow "Grow"]
-    [change-mode-button @mode :shrink "Shrink"]
+    [change-mode-button @mode :recolor "Change color" #(set-mode! :recolor)]
+    [change-mode-button @mode :grow "Grow" #(set-mode! :grow)]
+    [change-mode-button @mode :shrink "Shrink" #(set-mode! :shrink)]
     [:button {:on-click #(swap! circles recolor-all)} "Change all colors"]]])
 
 ;; Attach the main Reagent component to a DOM element
