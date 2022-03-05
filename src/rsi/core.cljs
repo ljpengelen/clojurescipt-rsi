@@ -153,8 +153,8 @@
    [:div
     [change-mode-button @mode :recolor "Change color" #(set-mode! :recolor)]
     [change-mode-button @mode :grow "Grow" #(set-mode! :grow)]
-    [change-mode-button @mode :shrink "Shrink" #(set-mode! :shrink)]
-    [:button {:on-click #(swap! circles recolor-all)} "Change all colors"]]])
+    [change-mode-button @mode :shrink "Shrink" #(set-mode! :shrink)]]
+   [:button {:on-click #(swap! circles recolor-all)} "Change all colors"]])
 
 ;; Attach the main Reagent component to a DOM element
 
