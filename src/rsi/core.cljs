@@ -11,7 +11,7 @@
 (comment
   @circles
   @mode
-  (reset! circles {}))
+  (reset! circles (ordered-map)))
 
 ;; Functions to create circles and colors
 
