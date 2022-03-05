@@ -165,3 +165,42 @@
 
 (defn ^:export init! []
   (mount-root))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;; The basics of Reagent
+;; =====================
+
+;; Reagent atoms are used to hold state
+
+(defonce number (r/atom 0))
+
+;; The simplest form of Reagent components are just functions
+;; (This one could have been pure if it wasn't for the print statement.)
+
+(defn number-view [number]
+  (println "Rendering")
+  [:span number])
+
+;; They can't all be pure, because some must refer to atoms
+
+(defn number-app []
+  [:p "The number is: " [number-view @number]])
+
+(comment
+  (d/render [number-app] (.getElementById js/document "app"))
+  (swap! number inc) ;; Triggers a rendering each time
+  (reset! number 0) ;; Triggers one rendering
+  (reset! number 20)) ;; Also triggers one rendering
