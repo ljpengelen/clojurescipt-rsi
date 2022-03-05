@@ -218,5 +218,6 @@
   ;; function calls, which are not as straightforward to test
   ;; as simple vectors.
 
-  ;; Compile the above using the Babel REPL: https://babeljs.io/repl/
+  ;; Compile the above using the Babel REPL to see
+  ;; for yourself: https://babeljs.io/repl/
   )
