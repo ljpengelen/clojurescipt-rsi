@@ -1,7 +1,5 @@
 {:source-paths ["src"]
- :dependencies [[binaryage/devtools "1.0.3"]
-                [nrepl "0.8.3"]
-                [org.flatland/ordered "1.15.10"]
+ :dependencies [[org.flatland/ordered "1.15.10"]
                 [reagent "1.1.0"]]
  :builds {:app {:target :browser
                 :output-dir "public/js"
@@ -9,5 +7,4 @@
                 :modules {:app {:entries [rsi.core]}}
                 :devtools {:after-load rsi.core/mount-root}}}
 
- :dev-http {3000 {:root "public"
-                  :handler user/app}}}
+ :dev-http {3000 "public"}}
