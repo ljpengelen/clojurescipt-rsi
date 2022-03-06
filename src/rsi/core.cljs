@@ -1,98 +1,51 @@
 (ns rsi.core
   (:require [reagent.core :as r]
-            [reagent.dom :as d]))
+            [reagent.dom :as d]
+            [rsi.basics :as basics]
+            [rsi.largest :as largest]
+            [rsi.multiplication-tables :as multiplication-tables]
+            [rsi.paint :as paint]
+            [rsi.second-largest :as second-largest]))
 
-(defonce score (r/atom 0))
-(defonce highscore (r/atom 0))
+;; The state of the app
 
-(defonce circles (r/atom []))
+(defonce selected-page (r/atom nil))
 
-(defonce next-colors (r/atom (cycle ["cyan" "magenta" "yellow" "black"])))
-(defonce color (r/atom "black"))
+;; State manipulation
 
-(defn next-color! []
-  (reset! color (first @next-colors))
-  (swap! next-colors next))
+(defn select-page! [page]
+  (reset! selected-page page))
 
-(defn random-circle []
-  {:x (rand-int 500) :y (rand-int 500) :r (rand-int 100)})
+;; Reagent components
 
-(defn new-circles! []
-  (reset! circles (repeatedly 5 random-circle)))
+(defn page-selector [page label]
+  [:button {:on-click #(select-page! page)} label])
 
-(comment
-  (reset! score 21)
-  (swap! score inc)
-  (new-circles!))
+(defn app-selector []
+  [:<>
+   [page-selector :basics "Reagent Basics"]
+   [page-selector :largest "Click the largest circle"]
+   [page-selector :multiplication-tables "Multiplication tables"]
+   [page-selector :paint "Paint"]
+   [page-selector :second-largest "Click the second largest circle"]])
 
-(defn score-view [label score]
-  [:div (str label ": " @score)])
-
-(defonce timeoutId (r/atom nil))
-(defn set-timeout! [f]
-  (reset! timeoutId (js/setTimeout f 1500)))
-(defn clear-timeout! []
-  (js/clearTimeout @timeoutId))
-
-(defn game-over! []
-  (clear-timeout!)
-  (next-color!)
-  (reset! score 0)
-  (new-circles!)
-  (set-timeout! game-over!))
-
-(defn score! []
-  (clear-timeout!)
-  (swap! score inc)
-  (swap! highscore max @score)
-  (new-circles!)
-  (set-timeout! game-over!))
-
-(comment
-  (next-color!))
-
-(defn circle [{:keys [x y r]} max?]
-  [:circle {:cx x
-            :cy y
-            :r r
-            :fill @color
-            :on-click (fn [e]
-                        (.stopPropagation e)
-                        (if max?
-                          (score!)
-                          (game-over!)))}])
-
-(defn second-largest [circles]
-  (->> circles
-       (map :r)
-       (sort >)
-       rest
-       first))
-
-(defn is-second-largest? [r circles]
-  (= r (second-largest circles)))
-
-(comment
-  (second-largest [{:r 10} {:r 50} {:r 100} {:r 99}]))
+;; Main app component
 
 (defn app []
-  [:div.app
-   [:p
-    "Click the second largest circle to score a point. "
-    "If you click the wrong circle, the round is over. "
-    "If you don't click a circle on time, the round is over too."]
-   [score-view "Score" score]
-   [score-view "High score" highscore]
-   [:svg {:height "500"
-          :width "500"
-          :on-click #(game-over!)}
-    (for [c @circles]
-      [circle c (is-second-largest? (:r c) @circles)])]])
+  (case @selected-page
+    :basics [basics/app]
+    :largest [largest/app]
+    :multiplication-tables [multiplication-tables/app]
+    :paint [paint/app]
+    :second-largest [second-largest/app]
+    [app-selector]))
+
+;; Attach the main app component to a DOM element
 
 (defn mount-root []
   (d/render [app] (.getElementById js/document "app")))
 
+;; Initialization at the start of the app
+
 (defn ^:export init! []
-  (mount-root)
-  (new-circles!)
-  (set-timeout! game-over!))
+  (mount-root))
