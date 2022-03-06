@@ -3,6 +3,8 @@
 This is a collection of simple [Reagent](http://reagent-project.github.io/) apps that give you a starting point for experimentation,
 without having to worry about project setup.
 
+This collection was created for the [Clojure for beginners presentation](https://github.com/ljpengelen/clojure-for-beginners-presentation).
+
 ## Requirements
 
 - [Java 8+](https://adoptium.net/)
