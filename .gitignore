@@ -4,5 +4,6 @@
 .lsp
 .shadow-cljs
 
+dist
 node_modules
 public/js

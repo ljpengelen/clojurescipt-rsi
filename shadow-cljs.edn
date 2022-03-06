@@ -1,10 +1,14 @@
 {:source-paths ["src"]
- :dependencies [[org.flatland/ordered "1.15.10"]
+ :dependencies [[com.github.ljpengelen/shadow-cljs-hash-assets-hook "1.0.2"]
+                [org.flatland/ordered "1.15.10"]
                 [reagent "1.1.0"]]
  :builds {:app {:target :browser
                 :output-dir "public/js"
                 :asset-path "/js"
+                :build-hooks [(shadow-cljs-hash-assets-hook/hash-assets! {:source-root "public"
+                                                                          :target-root "dist"
+                                                                          :index "index.html"
+                                                                          :files ["css/site.css" "js/app.js"]})]
                 :modules {:app {:entries [rsi.core]}}
                 :devtools {:after-load rsi.core/mount-root}}}
-
  :dev-http {3000 "public"}}
