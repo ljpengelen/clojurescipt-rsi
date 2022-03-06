@@ -11,3 +11,11 @@ body {
 svg {
   user-select: none;
 }
+
+svg {
+  user-select: none;
+}
+
+p {
+  width: 30rem;
+}
