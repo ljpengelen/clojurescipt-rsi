@@ -1,43 +1,37 @@
 (ns rsi.core
-  (:require [reagent.core :as r]
-            [reagent.dom :as d]
+  (:require [reagent.dom :as d]
             [rsi.basics :as basics]
             [rsi.largest :as largest]
             [rsi.multiplication-tables :as multiplication-tables]
             [rsi.paint :as paint]
             [rsi.second-largest :as second-largest]))
 
-;; The state of the app
-
-(defonce selected-page (r/atom nil))
-
-;; State manipulation
-
-(defn select-page! [page]
-  (reset! selected-page page))
-
 ;; Reagent components
 
-(defn page-selector [page label]
-  [:button {:on-click #(select-page! page)} label])
+(defn app-link [url label]
+  [:li [:a {:href url} label]])
 
 (defn app-selector []
-  [:<>
-   [page-selector :basics "Reagent Basics"]
-   [page-selector :largest "Click the largest circle"]
-   [page-selector :multiplication-tables "Multiplication tables"]
-   [page-selector :paint "Paint"]
-   [page-selector :second-largest "Click the second largest circle"]])
+  [:ul
+   [app-link "/basics" "Reagent Basics"]
+   [app-link "/largest" "Click the largest circle"]
+   [app-link "/multiplication-tables" "Multiplication tables"]
+   [app-link "/paint" "Paint"]
+   [app-link "/second-largest" "Click the second largest circle"]])
 
 ;; Main app component
 
+;; A true SPA would perform navigation without triggering
+;; page reloads. This simple approach is good enough
+;; for this app.
+
 (defn app []
-  (case @selected-page
-    :basics [basics/app]
-    :largest [largest/app]
-    :multiplication-tables [multiplication-tables/app]
-    :paint [paint/app]
-    :second-largest [second-largest/app]
+  (case js/window.location.pathname
+    "/basics" [basics/app]
+    "/largest" [largest/app]
+    "/multiplication-tables" [multiplication-tables/app]
+    "/paint" [paint/app]
+    "/second-largest" [second-largest/app]
     [app-selector]))
 
 ;; Attach the main app component to a DOM element
