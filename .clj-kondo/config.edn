@@ -1,3 +1,1 @@
-{:linters {:clojure-lsp/unused-public-var {:exclude #{rsi.core/init!
-                                                      user/app
-                                                      user/cljs}}}}
+{:linters {:clojure-lsp/unused-public-var {:exclude #{rsi.core/init!}}}}
