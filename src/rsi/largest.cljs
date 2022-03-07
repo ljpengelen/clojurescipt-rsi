@@ -74,6 +74,12 @@
 (defn clear-interval! []
   (js/clearInterval @intervalId))
 
+;; A Form-3 Reagent component is needed here because we
+;; need to start the game loop when the component mounts
+;; and stop it when it unmounts
+
+;; https://github.com/reagent-project/reagent/blob/master/doc/CreatingReagentComponents.md
+
 (defn app []
   (r/create-class
    {:component-did-mount set-interval!
