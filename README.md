@@ -3,7 +3,7 @@
 This is a collection of simple [Reagent](http://reagent-project.github.io/) apps that give you a starting point for experimentation,
 without having to worry about project setup.
 
-This collection was created for the [Clojure for beginners presentation](https://github.com/ljpengelen/clojure-for-beginners-presentation).
+This collection was created for the presentation [Clojure for Beginners](https://github.com/ljpengelen/clojure-for-beginners-presentation).
 
 ## Requirements
 
@@ -25,4 +25,5 @@ Execute the following command to create a release build:
 ```
 npx shadow-cljs release app
 ```
+
 The result can be found in `/dist`.
