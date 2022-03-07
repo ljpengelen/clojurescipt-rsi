@@ -9,12 +9,20 @@
 
 (defonce number (r/atom 0))
 
+(comment
+  number
+  (reset! number 10)
+  (swap! number inc))
+
 ;; The simplest form of Reagent components are just functions
 ;; (This one could have been pure if it wasn't for the print statement.)
 
 (defn number-view [number]
   (println "Rendering")
   [:span number])
+
+(comment
+  (number-view 101))
 
 ;; They can't all be pure, because some must refer to atoms
 
