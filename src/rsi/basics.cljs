@@ -7,33 +7,49 @@
 
 ;; Reagent atoms are used to hold state
 
-(defonce number (r/atom 0))
+(defonce number-of-clicks (r/atom 0))
 
 (comment
-  number
-  (reset! number 10)
-  (swap! number inc))
+  @number-of-clicks)
+
+;; They can be updated directly via functions that are inherently non-pure
+
+(comment
+  (reset! number-of-clicks 10)
+  (swap! number-of-clicks inc))
+
+(defn inc-number-of-clicks! []
+  (swap! number-of-clicks inc))
 
 ;; The simplest form of Reagent components are just functions
-;; (This one could have been pure if it wasn't for the print statement.)
 
-(defn number-view [number]
-  (println "Rendering")
-  [:span number])
+;; Those that dereference atoms are not pure
+
+(defn number-view []
+  (println "Rendering number view")
+  [:p "Number of clicks: " @number-of-clicks])
 
 (comment
-  (number-view 101))
+  (number-view)
+  (swap! number-of-clicks inc))
 
-;; They can't all be pure, because some must refer to atoms
+;; These could have been pure if it wasn't for the print statements
+
+(defn button []
+  (println "Rendering button")
+  [:button {:on-click inc-number-of-clicks!} "Click me!"])
 
 (defn app []
-  [:p "The number is: " [number-view @number]])
+  (println "Rendering app")
+  [:<>
+   [number-view]
+   [button]])
 
 (comment
   (d/render [app] (.getElementById js/document "app"))
-  (swap! number inc) ;; Triggers a rendering each time
-  (reset! number 0) ;; Triggers one rendering
-  (reset! number 20)) ;; Also triggers one rendering
+  (swap! number-of-clicks inc) ;; Triggers a rendering each time
+  (reset! number-of-clicks 0) ;; Triggers one rendering
+  (reset! number-of-clicks 20)) ;; Also triggers one rendering
 
 (comment
   ;; Functional React components using JSX look pretty good too.
@@ -50,4 +66,4 @@
 
   ;; Compile the above using the Babel REPL to see
   ;; for yourself: https://babeljs.io/repl/
-  )
+)
