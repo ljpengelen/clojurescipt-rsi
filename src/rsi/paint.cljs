@@ -133,7 +133,7 @@
 ;; Utility function
 
 (defn coords
-  "Returns the coordinates of e relative to its parent."
+  "Returns the coordinates of e's target relative to its parent."
   [e]
   (let [rect (.. e -target getBoundingClientRect)
         x (- (.-clientX e) (.-left rect))
