@@ -1,4 +1,5 @@
 {
+  "name": "clojurescript-rsi",
   "devDependencies": {
     "shadow-cljs": "^2.15.13"
   },
