@@ -19,3 +19,7 @@ svg {
 p {
   width: 30rem;
 }
+
+.deadline-passed {
+  color: red;
+}
