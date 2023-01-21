@@ -1,5 +1,6 @@
 {:source-paths ["src"]
- :dependencies [[com.github.ljpengelen/shadow-cljs-hash-assets-hook "1.0.2"]
+ :dependencies [[commons-codec/commons-codec "1.15"]
+                [com.github.ljpengelen/shadow-cljs-hash-assets-hook "1.1.0"]
                 [org.flatland/ordered "1.15.10"]
                 [reagent "1.1.0"]]
  :builds {:app {:target :browser
@@ -8,7 +9,8 @@
                 :build-hooks [(shadow-cljs-hash-assets-hook/hash-assets! {:source-root "public"
                                                                           :target-root "docs"
                                                                           :index "index.html"
-                                                                          :files ["css/site.css" "js/app.js"]})]
+                                                                          :files ["css/site.css" "js/app.js"]
+                                                                          :release-mode-only? true})]
                 :modules {:app {:entries [rsi.core]}}
                 :devtools {:after-load rsi.core/mount-root}}}
  :dev-http {3000 "public"}}
