@@ -18,12 +18,7 @@ If you're a beginner to Clojure and don't have a favorite setup yet, I recommend
 
 Once you've installed Java, Node.js, NPM, Visual Studio Code, and Calva, you can open `src/rsi/core.clj`, [connect Calva to the project](https://calva.io/connect/), and start experimenting.
 
-## Creating a release build
+## Deploying
 
-Execute the following command to create a release build:
-
-```
-npx shadow-cljs release app
-```
-
-The result can be found in `/dist`.
+Execute `deploy.sh` to deploy with GitHub pages.
+The resulting release build can be found in `/docs`.
