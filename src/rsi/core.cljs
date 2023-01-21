@@ -12,11 +12,9 @@
 (defonce fragment-identifier (r/atom js/window.location.hash))
 
 (defn handle-hash-change! [_]
-  (js/console.log "hash changed")
   (reset! fragment-identifier js/window.location.hash))
 
 (defn handle-hash-changes! []
-  (js/console.log "listening to hash changes")
   (js/addEventListener "hashchange" handle-hash-change!))
 
 ;; Reagent components
