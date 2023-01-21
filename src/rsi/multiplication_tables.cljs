@@ -1,16 +1,19 @@
 (ns rsi.multiplication-tables
   (:require [reagent.core :as r]))
 
+(defn random-number []
+  (inc (rand-int 10)))
+
 (defonce score (r/atom 0))
 (defonce highscore (r/atom 0))
 
-(defonce left (r/atom (rand-int 11)))
-(defonce right (r/atom (rand-int 11)))
+(defonce left (r/atom (random-number)))
+(defonce right (r/atom (random-number)))
 (defonce answer (r/atom ""))
 
 (defn new-numbers! []
-  (reset! left (rand-int 11))
-  (reset! right (rand-int 11))
+  (reset! left (random-number))
+  (reset! right (random-number))
   (reset! answer ""))
 
 (defn win! []
