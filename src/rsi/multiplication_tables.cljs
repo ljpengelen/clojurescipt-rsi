@@ -9,12 +9,10 @@
 
 (defonce left (r/atom (random-number)))
 (defonce right (r/atom (random-number)))
-(defonce answer (r/atom ""))
 
 (defn new-numbers! []
   (reset! left (random-number))
-  (reset! right (random-number))
-  (reset! answer ""))
+  (reset! right (random-number)))
 
 (defn win! []
   (swap! score inc)
