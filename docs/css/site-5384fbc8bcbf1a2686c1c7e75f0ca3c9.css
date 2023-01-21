@@ -1,0 +1,21 @@
+body {
+  font-family: 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-size: 1.125em;
+  color: #333;
+  line-height: 1.5em;
+  margin: 0;
+  padding: 1rem;
+}
+
+svg {
+  user-select: none;
+}
+
+svg {
+  user-select: none;
+}
+
+p {
+  width: 30rem;
+}
