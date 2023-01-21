@@ -73,6 +73,7 @@
                             (on-submit @value)
                             (reset! value ""))}
         [:input {:type "text"
+                 :inputmode "numeric"
                  :value @value
                  :on-change (fn [e]
                               (reset! value (.. e -target -value)))}]]])))
