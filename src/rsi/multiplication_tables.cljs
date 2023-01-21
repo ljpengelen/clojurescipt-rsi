@@ -69,7 +69,8 @@
   (let [value (r/atom "")]
     (fn [left right deadline-passed? on-submit]
       [:div (when deadline-passed? {:class "deadline-passed"}) (str left " x " right " = ")
-       [:form {:on-submit (fn [_]
+       [:form {:on-submit (fn [e]
+                            (.preventDefault e)
                             (on-submit @value)
                             (reset! value ""))}
         [:input {:type "text"
