@@ -13,11 +13,11 @@
 
 (defn app-selector []
   [:ul
-   [app-link "/basics" "Reagent Basics"]
-   [app-link "/largest" "Click the largest circle"]
-   [app-link "/multiplication-tables" "Multiplication tables"]
-   [app-link "/paint" "Paint"]
-   [app-link "/second-largest" "Click the second largest circle"]])
+   [app-link "basics" "Reagent Basics"]
+   [app-link "largest" "Click the largest circle"]
+   [app-link "multiplication-tables" "Multiplication tables"]
+   [app-link "paint" "Paint"]
+   [app-link "second-largest" "Click the second largest circle"]])
 
 ;; Main app component
 
