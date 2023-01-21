@@ -30,24 +30,23 @@
 (defn score-view [label score]
   [:div (str label ": " score)])
 
-(defn question-view [left right answer on-change on-submit]
-  [:div (str left " x " right " = ")
-   [:input {:type "text"
-            :value answer
-            :on-change (fn [e]
-                         (let [value (.. e -target -value)]
-                           (on-change value)))
-            :on-key-press (fn [e]
-                            (when (= (.-key e) "Enter")
-                              (on-submit (.. e -target -value))))}]])
+(defn question-view []
+  (let [value (r/atom "")]
+    (fn [left right on-submit]
+      [:div (str left " x " right " = ")
+       [:form {:on-submit (fn [_]
+                            (on-submit @value)
+                            (reset! value ""))}
+        [:input {:type "text"
+                 :value @value
+                 :on-change (fn [e]
+                              (reset! value (.. e -target -value)))}]]])))
 
 (defn app []
   [:div.app
    [score-view "Score" @score]
    [score-view "High score" @highscore]
-   [question-view @left @right @answer
-    (fn [new-answer]
-      (reset! answer new-answer))
+   [question-view @left @right
     (fn [answer]
       (if (= (str (* @left @right)) answer)
         (win!)
