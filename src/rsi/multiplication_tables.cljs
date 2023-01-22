@@ -29,16 +29,22 @@
 (defn set-deadline! []
   (set-timeout! (fn [] (swap! state assoc :deadline-passed? true))))
 
-(defn update-mode [{:keys [wrongly-answered] :as state}]
-  (cond-> state
-    (empty? wrongly-answered) (assoc :mode :against-the-clock)
-    (>= (count wrongly-answered) 5) (assoc :mode :repeat-wrongly-answered)))
+(defn update-mode [{:keys [wrongly-answered mode deadline-passed?] :as state} correct-anwer?]
+  (cond
+    (not correct-anwer?) (assoc state :mode :correct-current-question)
+    (or deadline-passed? (= mode :correct-current-question)) (assoc state :mode :against-the-clock)
+    (empty? wrongly-answered) (assoc state :mode :against-the-clock)
+    :else (assoc state :mode :repeat-wrongly-answered)))
 
 (defn update-question [{:keys [mode wrongly-answered] :as state}]
-  (if (= mode :against-the-clock)
+  (case mode
+    :correct-current-question
+    state
+    :against-the-clock
     (-> state
         (assoc :left (random-number))
         (assoc :right (random-number)))
+    :repeat-wrongly-answered
     (let [[left right] (first wrongly-answered)]
       (-> state
           (assoc :left left)
@@ -47,22 +53,24 @@
 (defn update-highscore [{:keys [score highscore] :as state}]
   (assoc state :highscore (max score highscore)))
 
-(defn update-score [{:keys [score] :as state} correct-anwer?]
-  (assoc state :score (if correct-anwer? (inc score) 0)))
+(defn update-score [{:keys [score deadline-passed?] :as state} correct-anwer?]
+  (assoc state :score (if (and (not deadline-passed?) correct-anwer?) (inc score) 0)))
 
-(defn update-wrongly-answered [{:keys [left right wrongly-answered] :as state} correct-anwer?]
-  (assoc state :wrongly-answered (if correct-anwer?
-                                   (disj wrongly-answered [left right])
-                                   (conj wrongly-answered [left right]))))
+(defn update-wrongly-answered [{:keys [left right wrongly-answered mode deadline-passed?] :as state} correct-anwer?]
+  (cond
+    (= mode :correct-current-question) state
+    (and correct-anwer? (not deadline-passed?)) (assoc state :wrongly-answered (disj wrongly-answered [left right]))
+    (or (not correct-anwer?) deadline-passed?) (assoc state :wrongly-answered (conj wrongly-answered [left right]))
+    :else state))
 
 (defn process-answer [state answer]
-  (let [{:keys [left right deadline-passed?]} state
-        correct-anwer? (and (not deadline-passed?) (= (str (* left right)) answer))]
+  (let [{:keys [left right]} state
+        correct-anwer? (= (str (* left right)) answer)]
     (-> state
-        update-highscore
         (update-score correct-anwer?)
+        update-highscore
         (update-wrongly-answered correct-anwer?)
-        update-mode
+        (update-mode correct-anwer?)
         update-question
         (assoc :deadline-passed? false))))
 
@@ -94,15 +102,9 @@
                  :on-change (fn [e]
                               (reset! value (.. e -target -value)))}]]])))
 
-(defn wrongly-answered-view [wrongly-answered]
-  [:ul
-   (for [[left right :as answer] wrongly-answered]
-     ^{:key answer} [:li left " x " right " = " (* left right)])])
-
 (defn app []
-  (let [{:keys [score highscore left right deadline-passed? wrongly-answered]} @state]
+  (let [{:keys [score highscore left right deadline-passed?]} @state]
     [:div.app
      [score-view "Score" score]
      [score-view "High score" highscore]
-     [question-view left right deadline-passed? process-answer!]
-     [wrongly-answered-view wrongly-answered]]))
+     [question-view left right deadline-passed? process-answer!]]))
