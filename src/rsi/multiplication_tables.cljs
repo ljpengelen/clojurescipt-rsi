@@ -60,6 +60,7 @@
     (swap! state update :wrong-answers conj [left right])))
 
 (comment
+  @state
   (right-anwser!)
   (wrong-answer!)
   (new-numbers!))
