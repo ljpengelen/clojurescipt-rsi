@@ -82,7 +82,7 @@
 (defn wrong-answer-view [wrong-answers]
   [:ul
    (for [[left right :as answer] wrong-answers]
-     ^{:key answer} [:li left " x " right])])
+     ^{:key answer} [:li left " x " right " = " (* left right)])])
 
 (defn app []
   [:div.app
