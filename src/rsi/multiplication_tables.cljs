@@ -11,49 +11,53 @@
 (defn clear-timeout! []
   (js/clearTimeout @timeout-id))
 
-;; State
-
 (defn random-number []
   (inc (rand-int 10)))
 
-(defonce score (r/atom 0))
-(defonce highscore (r/atom 0))
+;; State
 
-(defonce left (r/atom (random-number)))
-(defonce right (r/atom (random-number)))
-
-(defonce deadline-passed? (r/atom false))
-
-(defonce wrong-answers (r/atom #{}))
-
-(defonce mode (r/atom :against-the-clock))
+(defonce state
+  (r/atom
+   {:left (random-number)
+    :right (random-number)
+    :score 0
+    :highscore 0
+    :deadline-passed? false
+    :wrong-answers #{}
+    :mode :against-the-clock}))
 
 (defn set-deadline! []
-  (set-timeout! (fn [] (reset! deadline-passed? true))))
+  (set-timeout! (fn [] (swap! state assoc :deadline-passed? true))))
 
 (defn new-numbers! []
-  (reset! deadline-passed? false)
-  (when (>= (count @wrong-answers) 5)
-    (reset! mode :repeat-wrong-answers))
-  (when (empty? @wrong-answers)
-    (reset! mode :against-the-clock))
-  (if (= @mode :against-the-clock)
-    (do
-      (reset! left (random-number))
-      (reset! right (random-number))
-      (set-deadline!))
-    (let [[new-left new-right] (first @wrong-answers)]
-      (reset! left new-left)
-      (reset! right new-right))))
+  (let [wrong-answers (:wrong-answers @state)]
+    (swap! state assoc :deadline-passed? false)
+    (when (>= (count wrong-answers) 5)
+      (swap! state assoc :mode :repeat-wrong-answers))
+    (when (empty? wrong-answers)
+      (swap! state assoc :mode :against-the-clock))
+    (if (= (:mode @state) :against-the-clock)
+      (do
+        (swap! state assoc :left (random-number))
+        (swap! state assoc :right (random-number))
+        (set-deadline!))
+      (let [[new-left new-right] (first wrong-answers)]
+        (swap! state assoc :left new-left)
+        (swap! state assoc :right new-right)))))
 
 (defn right-anwser! []
-  (swap! wrong-answers disj [@left @right])
-  (swap! score inc)
-  (swap! highscore max @score))
+  (let [right (:right @state)
+        left (:left @state)
+        score (:score @state)]
+    (swap! state update :wrong-answers disj [left right])
+    (swap! state update :score inc)
+    (swap! state update :highscore max score)))
 
 (defn wrong-answer! []
-  (reset! score 0)
-  (swap! wrong-answers conj [@left @right]))
+  (let [right (:right @state)
+        left (:left @state)]
+    (swap! state assoc :score 0)
+    (swap! state update :wrong-answers conj [left right])))
 
 (comment
   (right-anwser!)
@@ -85,14 +89,15 @@
      ^{:key answer} [:li left " x " right " = " (* left right)])])
 
 (defn app []
-  [:div.app
-   [score-view "Score" @score]
-   [score-view "High score" @highscore]
-   [question-view @left @right @deadline-passed?
-    (fn [answer]
-      (clear-timeout!)
-      (if (and (not @deadline-passed?) (= (str (* @left @right)) answer))
-        (right-anwser!)
-        (wrong-answer!))
-      (new-numbers!))]
-   [wrong-answer-view @wrong-answers]])
+  (let [{:keys [score highscore left right deadline-passed? wrong-answers]} @state]
+    [:div.app
+     [score-view "Score" score]
+     [score-view "High score" highscore]
+     [question-view left right deadline-passed?
+      (fn [answer]
+        (clear-timeout!)
+        (if (and (not deadline-passed?) (= (str (* left right)) answer))
+          (right-anwser!)
+          (wrong-answer!))
+        (new-numbers!))]
+     [wrong-answer-view wrong-answers]]))
