@@ -23,47 +23,57 @@
     :score 0
     :highscore 0
     :deadline-passed? false
-    :wrong-answers #{}
+    :wrongly-answered #{}
     :mode :against-the-clock}))
 
 (defn set-deadline! []
   (set-timeout! (fn [] (swap! state assoc :deadline-passed? true))))
 
-(defn new-numbers! []
-  (let [wrong-answers (:wrong-answers @state)]
-    (swap! state assoc :deadline-passed? false)
-    (when (>= (count wrong-answers) 5)
-      (swap! state assoc :mode :repeat-wrong-answers))
-    (when (empty? wrong-answers)
-      (swap! state assoc :mode :against-the-clock))
-    (if (= (:mode @state) :against-the-clock)
-      (do
-        (swap! state assoc :left (random-number))
-        (swap! state assoc :right (random-number))
-        (set-deadline!))
-      (let [[new-left new-right] (first wrong-answers)]
-        (swap! state assoc :left new-left)
-        (swap! state assoc :right new-right)))))
+(defn update-mode [{:keys [wrongly-answered] :as state}]
+  (cond-> state
+    (empty? wrongly-answered) (assoc :mode :against-the-clock)
+    (>= (count wrongly-answered) 5) (assoc :mode :repeat-wrongly-answered)))
 
-(defn right-anwser! []
-  (let [right (:right @state)
-        left (:left @state)
-        score (:score @state)]
-    (swap! state update :wrong-answers disj [left right])
-    (swap! state update :score inc)
-    (swap! state update :highscore max score)))
+(defn update-question [{:keys [mode wrongly-answered] :as state}]
+  (if (= mode :against-the-clock)
+    (-> state
+        (assoc :left (random-number))
+        (assoc :right (random-number)))
+    (let [[left right] (first wrongly-answered)]
+      (-> state
+          (assoc :left left)
+          (assoc :right right)))))
 
-(defn wrong-answer! []
-  (let [right (:right @state)
-        left (:left @state)]
-    (swap! state assoc :score 0)
-    (swap! state update :wrong-answers conj [left right])))
+(defn update-highscore [{:keys [score highscore] :as state}]
+  (assoc state highscore (max score highscore)))
+
+(defn update-score [{:keys [score] :as state} correct-anwer?]
+  (assoc state :score (if correct-anwer? (inc score) 0)))
+
+(defn update-wrongly-answered [{:keys [left right wrongly-answered] :as state} correct-anwer?]
+  (assoc state :wrongly-answered (if correct-anwer?
+                                   (disj wrongly-answered [left right])
+                                   (conj wrongly-answered [left right]))))
+
+(defn process-answer [state answer]
+  (let [{:keys [left right deadline-passed?]} state
+        correct-anwer? (and (not deadline-passed?) (= (str (* left right)) answer))]
+    (-> state
+        update-highscore
+        (update-score correct-anwer?)
+        (update-wrongly-answered correct-anwer?)
+        update-mode
+        update-question
+        (assoc :deadline-passed? false))))
+
+(defn process-answer! [answer]
+  (clear-timeout!)
+  (swap! state process-answer answer)
+  (when (= (:mode @state) :against-the-clock)
+    (set-deadline!)))
 
 (comment
-  @state
-  (right-anwser!)
-  (wrong-answer!)
-  (new-numbers!))
+  @state)
 
 ;; Reagent components
 
@@ -79,26 +89,20 @@
                             (on-submit @value)
                             (reset! value ""))}
         [:input {:type "text"
-                 :inputmode "numeric"
+                 :inputMode "numeric"
                  :value @value
                  :on-change (fn [e]
                               (reset! value (.. e -target -value)))}]]])))
 
-(defn wrong-answer-view [wrong-answers]
+(defn wrongly-answered-view [wrongly-answered]
   [:ul
-   (for [[left right :as answer] wrong-answers]
+   (for [[left right :as answer] wrongly-answered]
      ^{:key answer} [:li left " x " right " = " (* left right)])])
 
 (defn app []
-  (let [{:keys [score highscore left right deadline-passed? wrong-answers]} @state]
+  (let [{:keys [score highscore left right deadline-passed? wrongly-answered]} @state]
     [:div.app
      [score-view "Score" score]
      [score-view "High score" highscore]
-     [question-view left right deadline-passed?
-      (fn [answer]
-        (clear-timeout!)
-        (if (and (not deadline-passed?) (= (str (* left right)) answer))
-          (right-anwser!)
-          (wrong-answer!))
-        (new-numbers!))]
-     [wrong-answer-view wrong-answers]]))
+     [question-view left right deadline-passed? process-answer!]
+     [wrongly-answered-view wrongly-answered]]))
