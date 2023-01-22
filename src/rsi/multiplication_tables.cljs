@@ -45,7 +45,7 @@
           (assoc :right right)))))
 
 (defn update-highscore [{:keys [score highscore] :as state}]
-  (assoc state highscore (max score highscore)))
+  (assoc state :highscore (max score highscore)))
 
 (defn update-score [{:keys [score] :as state} correct-anwer?]
   (assoc state :score (if correct-anwer? (inc score) 0)))
