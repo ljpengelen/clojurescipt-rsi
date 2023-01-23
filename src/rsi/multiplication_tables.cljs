@@ -77,8 +77,7 @@
 (defn process-answer! [answer]
   (clear-timeout!)
   (swap! state process-answer answer)
-  (when (= (:mode @state) :against-the-clock)
-    (set-deadline!)))
+  (set-deadline!))
 
 (comment
   @state)
