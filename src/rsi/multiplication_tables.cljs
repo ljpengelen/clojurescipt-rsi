@@ -31,12 +31,12 @@
 (defn set-deadline! []
   (set-timeout! (fn [] (swap! state assoc :deadline-passed? true))))
 
-(defn update-mode [{:keys [mode wrongly-answered] :as state} correct-answer?]
+(defn update-mode [{:keys [deadline-passed? mode wrongly-answered] :as state} correct-answer?]
   (cond
     (not correct-answer?) (assoc state :mode :correct-current-question)
+    deadline-passed? (assoc state :mode :against-the-clock)
     (and (= mode :against-the-clock) (seq wrongly-answered)) (assoc state :mode :repeat-wrongly-answered) 
-    (not= mode :against-the-clock) (assoc state :mode :against-the-clock)
-    :else state))
+    :else (assoc state :mode :against-the-clock)))
 
 (defn update-question [{:keys [mode wrongly-answered] :as state}]
   (cond
