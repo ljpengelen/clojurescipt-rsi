@@ -43,10 +43,10 @@
     ;; Otherwise, ask a new "fresh" question
     :else (assoc state :mode :against-the-clock)))
 
-(defn update-question [{:keys [mode wrongly-answered] :as state}]
+(defn update-question [{:keys [mode wrongly-answered] :as state} random-question]
   (case mode
     :correct-current-question state
-    :against-the-clock (assoc state :question (random-question))
+    :against-the-clock (assoc state :question random-question)
     :repeat-wrongly-answered (let [wrong-answer (first wrongly-answered)] (-> state
                                                                               (assoc :question wrong-answer)
                                                                               (update :wrongly-answered disj wrong-answer)))))
@@ -62,7 +62,7 @@
     (assoc state :wrongly-answered (conj wrongly-answered question))
     state))
 
-(defn process-answer [state answer]
+(defn process-answer [state answer random-question]
   (let [[left right] (:question state)
         correct-anwer? (= (str (* left right)) answer)]
     (-> state
@@ -70,7 +70,7 @@
         update-highscore
         (update-wrongly-answered correct-anwer?)
         (update-mode correct-anwer?)
-        update-question
+        (update-question random-question)
         (assoc :deadline-passed? false))))
 
 ;; State manipulation
@@ -80,7 +80,7 @@
 
 (defn process-answer! [answer]
   (clear-timeout!)
-  (swap! state process-answer answer)
+  (swap! state process-answer answer (random-question))
   (set-deadline!))
 
 ;; Reagent components
