@@ -1,7 +1,7 @@
 (ns rsi.multiplication-tables
   (:require [reagent.core :as r]))
 
-;; Utilities
+;; JavaScript wrappers
 
 (defonce timeout-id (r/atom nil))
 
@@ -10,6 +10,8 @@
 
 (defn clear-timeout! []
   (js/clearTimeout @timeout-id))
+
+;; "Domain logic"
 
 (defn random-number []
   (inc (rand-int 10)))
@@ -28,23 +30,26 @@
     :wrongly-answered #{}
     :mode :against-the-clock}))
 
-(defn set-deadline! []
-  (set-timeout! (fn [] (swap! state assoc :deadline-passed? true))))
+;; Pure function to transform state
 
 (defn update-mode [{:keys [deadline-passed? mode wrongly-answered] :as state} correct-answer?]
   (cond
+    ;; Immediately repeat questions with incorrect answers
     (not correct-answer?) (assoc state :mode :correct-current-question)
+    ;; Do not immediately repeat questions that are answered correctly, but too late
     deadline-passed? (assoc state :mode :against-the-clock)
-    (and (= mode :against-the-clock) (seq wrongly-answered)) (assoc state :mode :repeat-wrongly-answered) 
+    ;; After at least one new "fresh" question, repeat one wrongly answered question if there is one
+    (and (= mode :against-the-clock) (seq wrongly-answered)) (assoc state :mode :repeat-wrongly-answered)
+    ;; Otherwise, ask a new "fresh" question
     :else (assoc state :mode :against-the-clock)))
 
 (defn update-question [{:keys [mode wrongly-answered] :as state}]
-  (cond
-    (= mode :correct-current-question) state
-    (= mode :against-the-clock) (assoc state :question (random-question))
-    :else (let [wrong-answer (first wrongly-answered)] (-> state
-                                                           (assoc :question wrong-answer)
-                                                           (update :wrongly-answered disj wrong-answer)))))
+  (case mode
+    :correct-current-question state
+    :against-the-clock (assoc state :question (random-question))
+    :repeat-wrongly-answered (let [wrong-answer (first wrongly-answered)] (-> state
+                                                                              (assoc :question wrong-answer)
+                                                                              (update :wrongly-answered disj wrong-answer)))))
 
 (defn update-highscore [{:keys [score highscore] :as state}]
   (assoc state :highscore (max score highscore)))
@@ -68,13 +73,15 @@
         update-question
         (assoc :deadline-passed? false))))
 
+;; State manipulation
+
+(defn set-deadline! []
+  (set-timeout! (fn [] (swap! state assoc :deadline-passed? true))))
+
 (defn process-answer! [answer]
   (clear-timeout!)
   (swap! state process-answer answer)
   (set-deadline!))
-
-(comment
-  @state)
 
 ;; Reagent components
 
