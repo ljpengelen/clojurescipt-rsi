@@ -1,4 +1,4 @@
-{:source-paths ["src/main"]
+{:source-paths ["src/main" "src/test"]
  :dependencies [[commons-codec/commons-codec "1.15"]
                 [com.github.ljpengelen/shadow-cljs-hash-assets-hook "1.1.0"]
                 [org.flatland/ordered "1.15.10"]
@@ -12,5 +12,8 @@
                                                                           :files ["css/site.css" "js/app.js"]
                                                                           :release-mode-only? true})]
                 :modules {:app {:entries [rsi.core]}}
-                :devtools {:after-load rsi.core/mount-root}}}
+                :devtools {:after-load rsi.core/mount-root}}
+          :test {:target :node-test
+                 :output-to "out/node-tests.js"
+                 :autorun true}}
  :dev-http {3000 "public"}}

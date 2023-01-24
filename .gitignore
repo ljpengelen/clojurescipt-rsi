@@ -5,4 +5,5 @@
 .shadow-cljs
 
 node_modules
+out
 public/js

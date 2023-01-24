@@ -18,6 +18,12 @@ If you're a beginner to Clojure and don't have a favorite setup yet, I recommend
 
 Once you've installed Java, Node.js, NPM, Visual Studio Code, and Calva, you can open `src/rsi/core.clj`, [connect Calva to the project](https://calva.io/connect/), and start experimenting.
 
+## Running tests
+
+First, compile the JavaScript bundle containing all tests by executing `npx shadow-cljs compile test`.
+Afterwards, run the tests by executing `node out/node-test.js`.
+
+
 ## Deploying
 
 Execute `deploy.sh` to deploy with GitHub pages.
