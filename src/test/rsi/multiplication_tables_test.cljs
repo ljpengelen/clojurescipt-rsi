@@ -30,12 +30,24 @@
 
 (deftest transforming-state
   (testing "correct answer"
-    (is (= {:question [1 2]
-            :score 1
-            :highscore 1
-            :mode :against-the-clock
-            :deadline-passed? false}
-           (process-answer {:question [2 3]} "6" [1 2]))))
+    (testing "on time"
+      (is (= {:question [1 2]
+              :score 1
+              :highscore 1
+              :mode :against-the-clock
+              :deadline-passed? false}
+             (process-answer {:question [2 3]} "6" [1 2]))))
+    (testing "too late"
+      (is (= {:question [1 2]
+              :score 0
+              :highscore 1
+              :mode :against-the-clock
+              :wrongly-answered #{[2 3]}
+              :deadline-passed? false}
+             (process-answer {:question [2 3]
+                              :highscore 1
+                              :wrongly-answered #{}
+                              :deadline-passed? true} "6" [1 2])))))
    (testing "wrong answer"
      (is (= {:question [2 3]
              :score 0
