@@ -64,9 +64,8 @@
   (let [[left right] (:question state)
         correct-anwer? (= (str (* left right)) answer)
         new-score (score state correct-anwer?)
-        new-mode (mode state correct-anwer?)
-        new-question (question state new-mode random-question)]
-    {:question new-question
+        new-mode (mode state correct-anwer?)]
+    {:question (question state new-mode random-question)
      :score new-score
      :highscore (highscore state new-score)
      :deadline-passed? false
