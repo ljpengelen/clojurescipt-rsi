@@ -30,7 +30,7 @@
     :wrongly-answered #{}
     :mode :against-the-clock}))
 
-;; Pure function to transform state
+;; Pure functions to transform state
 
 (defn update-mode [{:keys [deadline-passed? mode wrongly-answered] :as state} correct-answer?]
   (cond
