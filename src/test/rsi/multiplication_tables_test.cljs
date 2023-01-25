@@ -1,32 +1,23 @@
 (ns rsi.multiplication-tables-test
   (:require [cljs.test :refer (deftest is testing)]
-            [rsi.multiplication-tables :refer [process-answer update-highscore
-                                               update-score]]))
+            [rsi.multiplication-tables :refer [highscore process-answer score]]))
 
-(deftest score
+(deftest increments-score
   (testing "increments given correct answer in time"
-    (is (=
-         {:deadline-passed? false
-          :score 1}
-         (update-score {:deadline-passed? false
-                        :score 0} true))))
+    (is (= 1
+           (score {:deadline-passed? false
+                   :score 0} true))))
   (testing "does not increment given late correct answer"
-    (is (=
-         {:deadline-passed? true
-          :score 0}
-         (update-score {:deadline-passed? true
-                        :score 0} true))))
+    (is (= 0
+         (score {:deadline-passed? true
+                 :score 0} true))))
   (testing "does not increment given wrong answer"
-    (is (=
-         {:score 0}
-         (update-score {:score 0} false)))))
+    (is (= 0
+         (score {:score 0} false)))))
 
-(deftest highscore
-  (is (=
-       {:score 3
-        :highscore 3}
-       (update-highscore {:score 3
-                          :highscore 2}))))
+(deftest increases-highscore
+  (is (= 3
+         (highscore {:highscore 2} 3))))
 
 (deftest transforming-state
   (testing "correct answer"
@@ -35,8 +26,10 @@
               :score 1
               :highscore 1
               :mode :against-the-clock
+              :wrongly-answered #{}
               :deadline-passed? false}
-             (process-answer {:question [2 3]} "6" [1 2]))))
+             (process-answer {:question [2 3]
+                              :wrongly-answered #{}} "6" [1 2]))))
     (testing "too late"
       (is (= {:question [1 2]
               :score 0
