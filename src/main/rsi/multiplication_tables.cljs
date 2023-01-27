@@ -95,7 +95,8 @@
                             (.preventDefault e)
                             (on-submit @value)
                             (reset! value ""))}
-        [:input {:type "text"
+        [:input {:autoFocus true
+                 :type "text"
                  :inputMode "numeric"
                  :value @value
                  :on-change (fn [e]
@@ -104,7 +105,7 @@
 (defn app []
   (let [{:keys [score highscore question deadline-passed?]} @state
         [left right] question]
-    [:div.app
+    [:div.multiplication-tables
      [score-view "Score" score]
      [score-view "High score" highscore]
      [question-view left right deadline-passed? process-answer!]]))
