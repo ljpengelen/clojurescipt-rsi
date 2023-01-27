@@ -14,5 +14,8 @@
                 :modules {:app {:entries [rsi.core]}}
                 :devtools {:after-load rsi.core/mount-root}}
           :test {:target :node-test
-                 :output-to "out/node-tests.js"}}
- :dev-http {3000 "public"}}
+                 :output-to "out/node-tests.js"}
+          :browser-test {:target :browser-test
+                         :test-dir "out/test"}}
+ :dev-http {3000 "public"
+            3001 "out/test"}}
