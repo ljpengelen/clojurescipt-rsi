@@ -1,23 +1,6 @@
 (ns rsi.multiplication-tables-test
   (:require [cljs.test :refer (deftest is testing)]
-            [rsi.multiplication-tables :refer [highscore process-answer score]]))
-
-(deftest increments-score
-  (testing "increments given correct answer in time"
-    (is (= 1
-           (score {:deadline-passed? false
-                   :score 0} true))))
-  (testing "does not increment given late correct answer"
-    (is (= 0
-         (score {:deadline-passed? true
-                 :score 0} true))))
-  (testing "does not increment given wrong answer"
-    (is (= 0
-         (score {:score 0} false)))))
-
-(deftest increases-highscore
-  (is (= 3
-         (highscore {:highscore 2} 3))))
+            [rsi.multiplication-tables :refer [process-answer]]))
 
 (deftest transforming-state
   (testing "correct answer"
