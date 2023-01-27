@@ -1,0 +1,6 @@
+;; Trigger menu with custom snippents
+;; with control + option + c followed by space
+{:customREPLCommandSnippets
+ [{:name "Run tests"
+   :snippet "(cljs.user/run-all-tests)"
+   :key "t"}]}
