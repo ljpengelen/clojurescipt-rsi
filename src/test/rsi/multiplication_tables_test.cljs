@@ -6,12 +6,14 @@
   (testing "correct answer"
     (testing "on time"
       (is (= {:question [1 2]
-              :score 1
-              :highscore 1
+              :score 2
+              :highscore 2
               :mode :against-the-clock
               :wrongly-answered #{}
               :deadline-passed? false}
              (process-answer {:question [2 3]
+                              :score 1
+                              :highscore 1
                               :wrongly-answered #{}} "6" [1 2]))))
     (testing "too late"
       (is (= {:question [1 2]
