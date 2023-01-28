@@ -1,9 +1,7 @@
 (ns cljs.user
-  (:require [clojure.test :refer [run-tests]]
+  (:require [cljs.test]
             [rsi.multiplication-tables-test]))
 
-(defn run-all-tests []
-  (run-tests 'rsi.multiplication-tables-test))
-
 (comment
-  (run-all-tests))
+  (cljs.test/run-all-tests)
+  (cljs.test/run-all-tests #"rsi.*-test"))
