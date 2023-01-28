@@ -1,5 +1,6 @@
 (ns rsi.multiplication-tables
-  (:require [reagent.core :as r]))
+  (:require [clojure.string :as string]
+            [reagent.core :as r]))
 
 ;; JavaScript wrappers
 
@@ -93,8 +94,9 @@
       [:div (when deadline-passed? {:class "deadline-passed"}) (str left " x " right " = ")
        [:form {:on-submit (fn [e]
                             (.preventDefault e)
-                            (on-submit @value)
-                            (reset! value ""))}
+                            (when-not (string/blank? @value)
+                              (on-submit @value)
+                              (reset! value "")))}
         [:input {:autoFocus true
                  :type "text"
                  :inputMode "numeric"
