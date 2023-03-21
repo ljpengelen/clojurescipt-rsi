@@ -7,7 +7,7 @@
 (defonce timeout-id (r/atom nil))
 
 (defn set-timeout! [f]
-  (reset! timeout-id (js/setTimeout f 4000)))
+  (reset! timeout-id (js/setTimeout f 5000)))
 
 (defn clear-timeout! []
   (js/clearTimeout @timeout-id))
