@@ -30,7 +30,7 @@
      (is (= {:question [2 3]
              :score 0
              :highscore 10
-             :mode :correct-current-question
+             :mode :show-correct-answer
              :wrongly-answered #{[2 3]}
              :deadline-passed? false}
             (process-answer {:question [2 3]

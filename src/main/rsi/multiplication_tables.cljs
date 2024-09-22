@@ -35,8 +35,8 @@
 
 (defn mode [{:keys [deadline-passed? mode wrongly-answered]} correct-answer?]
   (cond
-    ;; Immediately repeat questions with incorrect answers
-    (not correct-answer?) :correct-current-question
+    ;; Show correct answer given incorrect answers
+    (not correct-answer?) :show-correct-answer
     ;; Do not immediately repeat questions that are answered correctly, but too late
     deadline-passed? :against-the-clock
     ;; After at least one new "fresh" question, repeat one wrongly answered question if there is one
@@ -46,7 +46,7 @@
 
 (defn question [{:keys [question wrongly-answered]} new-mode random-question]
   (case new-mode
-    :correct-current-question question
+    :show-correct-answer question
     :against-the-clock random-question
     :repeat-wrongly-answered (first wrongly-answered)))
 
@@ -57,7 +57,7 @@
   (if (and (not deadline-passed?) correct-anwer?) (inc score) 0))
 
 (defn wrongly-answered [{:keys [deadline-passed? mode question wrongly-answered]} correct-answer?]
-  (if (and correct-answer? (not deadline-passed?) (not= mode :correct-current-question))
+  (if (and correct-answer? (not deadline-passed?) (not= mode :show-correct-answer))
     (disj wrongly-answered question)
     (conj wrongly-answered question)))
 
@@ -73,6 +73,14 @@
      :wrongly-answered (wrongly-answered state correct-anwer?)
      :mode new-mode}))
 
+(defn dismiss-answer [{:keys [score highscore wrongly-answered]} random-question]
+  {:question random-question
+   :score score
+   :highscore highscore
+   :deadline-passed? false
+   :wrongly-answered wrongly-answered
+   :mode :against-the-clock})
+
 ;; State manipulation
 
 (defn set-deadline! []
@@ -83,10 +91,23 @@
   (swap! state process-answer answer (random-question))
   (set-deadline!))
 
+(defn dismiss-answer-view! []
+  (clear-timeout!)
+  (swap! state dismiss-answer (random-question))
+  (set-deadline!))
+
 ;; Reagent components
 
 (defn score-view [label score]
   [:div (str label ": " score)])
+
+(defn answer-view [left right on-submit]
+  [:div
+   [:div (str left " x " right " = " (* left right))]
+   [:form {:on-submit (fn [e]
+                        (.preventDefault e)
+                        (on-submit))}
+    [:button {:autoFocus true} "OK"]]])
 
 (defn question-view []
   (let [value (r/atom "")]
@@ -105,9 +126,12 @@
                               (reset! value (.. e -target -value)))}]]])))
 
 (defn app []
-  (let [{:keys [score highscore question deadline-passed?]} @state
+  (let [{:keys [score highscore question deadline-passed? mode]} @state
         [left right] question]
     [:div.multiplication-tables
-     [score-view "Score" score]
-     [score-view "High score" highscore]
-     [question-view left right deadline-passed? process-answer!]]))
+     (if (= mode :show-correct-answer)
+       [answer-view left right dismiss-answer-view!]
+       [:div
+        [score-view "Score" score]
+        [score-view "High score" highscore]
+        [question-view left right deadline-passed? process-answer!]])]))
