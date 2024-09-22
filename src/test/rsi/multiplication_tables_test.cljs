@@ -2,7 +2,7 @@
   (:require [cljs.test :refer (deftest is testing)]
             [rsi.multiplication-tables :refer [process-answer]]))
 
-(deftest transforming-state
+(deftest calculating-state
   (testing "correct answer"
     (testing "on time"
       (is (= {:question [1 2]
