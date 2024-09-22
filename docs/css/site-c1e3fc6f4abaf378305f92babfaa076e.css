@@ -21,10 +21,8 @@ body {
 }
 
 svg {
-  user-select: none;
-}
-
-svg {
+  border: 1px solid gray;
+  cursor: crosshair;
   user-select: none;
 }
 
